@@ -192,5 +192,6 @@ def logout():
     return redirect(url_for('home'))
 
 if __name__ == '__main__':
-    # App-ah ippo socketio valiya run panrom
-    socketio.run(app, debug=True)
+    import os
+    port = int(os.environ.get("PORT", 5000))
+    socketio.run(app, host='0.0.0.0', port=port)
