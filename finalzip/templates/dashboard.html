@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Obi Social - Chats</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --dark-bg: #111b21; --header-bg: #202c33; --text-main: #e9edef; --text-dim: #8696a0; --accent: #00a884; }
+        body { margin: 0; background: var(--dark-bg); color: var(--text-main); font-family: 'Segoe UI', Tahoma, sans-serif; overflow-x: hidden; }
+        
+        /* Header */
+        .header { background: var(--header-bg); padding: 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+        .header h2 { margin: 0; font-size: 20px; font-weight: 500; }
+        .header-icons i { margin-left: 20px; font-size: 18px; color: var(--text-dim); cursor: pointer; }
+
+        /* Search */
+        .search-container { padding: 10px 15px; background: var(--dark-bg); }
+        .search-box { background: var(--header-bg); border-radius: 10px; padding: 8px 15px; display: flex; align-items: center; }
+        .search-box i { color: var(--text-dim); margin-right: 15px; font-size: 14px; }
+        .search-box input { background: transparent; border: none; color: var(--text-main); width: 100%; outline: none; font-size: 15px; }
+
+        /* Chat List */
+        .chat-list { padding-bottom: 80px; }
+        .chat-item { display: flex; align-items: center; padding: 12px 15px; transition: 0.2s; cursor: pointer; text-decoration: none; color: inherit; }
+        .chat-item:hover { background: #2a3942; }
+        .avatar { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; margin-right: 15px; }
+        .chat-info { flex: 1; border-bottom: 0.5px solid #222d34; padding-bottom: 12px; }
+        .chat-top { display: flex; justify-content: space-between; margin-bottom: 4px; }
+        .chat-name { font-weight: 500; font-size: 16px; }
+        .chat-time { font-size: 11px; color: var(--accent); }
+        .chat-msg { font-size: 13px; color: var(--text-dim); }
+
+        /* FAB */
+        .fab { position: fixed; bottom: 80px; right: 20px; background: var(--accent); width: 50px; height: 50px; border-radius: 14px; display: flex; align-items: center; justify-content: center; color: white; font-size: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
+
+        /* Bottom Nav */
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: var(--header-bg); display: flex; justify-content: space-around; padding: 8px 0; border-top: 1px solid #222d34; }
+        .nav-item { text-align: center; color: var(--text-dim); font-size: 11px; flex: 1; cursor: pointer; }
+        .nav-item i { font-size: 18px; display: block; margin-bottom: 4px; }
+        .nav-item.active { color: var(--text-main); }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div style="display: flex; align-items: center;">
+            <a href="/profile">
+                {% if user.profile_pic %}
+                    <img src="{{ url_for('static', filename='uploads/' + user.profile_pic) }}" 
+                         style="width: 35px; height: 35px; border-radius: 50%; margin-right: 15px; border: 1.5px solid white; object-fit: cover;">
+                {% else %}
+                    <img src="https://ui-avatars.com/api/?name={{ user.username }}&background=00a884&color=fff" 
+                         style="width: 35px; height: 35px; border-radius: 50%; margin-right: 15px;">
+                {% endif %}
+            </a>
+            <h2>Chats</h2>
+        </div>
+        <div class="header-icons">
+            <i class="fas fa-search"></i>
+            <a href="/logout" style="color: inherit;"><i class="fas fa-ellipsis-v"></i></a>
+        </div>
+    </div>
+
+    <div class="search-container">
+        <form action="/search_contact" method="POST" class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" name="search_mobile" placeholder="Search by mobile number..." required>
+        </form>
+    </div>
+
+    <div class="chat-list">
+        <div class="chat-item">
+            {% if user.profile_pic %}
+                <img src="{{ url_for('static', filename='uploads/' + user.profile_pic) }}" class="avatar">
+            {% else %}
+                <img src="https://ui-avatars.com/api/?name={{ user.username }}&background=00a884&color=fff" class="avatar">
+            {% endif %}
+            <div class="chat-info">
+                <div class="chat-top">
+                    <span class="chat-name">{{ user.username }} (You)</span>
+                    <span class="chat-time">Online</span>
+                </div>
+                <div class="chat-msg">Message yourself</div>
+            </div>
+        </div>
+
+        {% if search_result %}
+        <div style="padding: 10px 15px; font-size: 12px; color: var(--accent); font-weight: bold; text-transform: uppercase;">
+            Search Result
+        </div>
+        <a href="/chat/{{ search_result.id }}" class="chat-item">
+            {% if search_result.profile_pic %}
+                <img src="{{ url_for('static', filename='uploads/' + search_result.profile_pic) }}" class="avatar">
+            {% else %}
+                <img src="https://ui-avatars.com/api/?name={{ search_result.username }}&background=1877f2&color=fff" class="avatar">
+            {% endif %}
+            <div class="chat-info">
+                <div class="chat-top">
+                    <span class="chat-name">{{ search_result.username }}</span>
+                    <span class="chat-time">Just now</span>
+                </div>
+                <div class="chat-msg">Tap to start chatting</div>
+            </div>
+        </a>
+        {% endif %}
+
+        <div style="padding: 10px 15px; font-size: 12px; color: var(--accent); font-weight: bold; text-transform: uppercase; border-top: 1px solid #222d34; margin-top: 10px;">
+            Recent Chats
+        </div>
+
+        {% for r_user in recent_users %}
+        <a href="/chat/{{ r_user.id }}" class="chat-item">
+            <img src="{{ url_for('static', filename='uploads/' + r_user.profile_pic) if r_user.profile_pic else 'https://ui-avatars.com/api/?name=' + r_user.username }}" class="avatar">
+            <div class="chat-info">
+                <div class="chat-top">
+                    <span class="chat-name">{{ r_user.username }}</span>
+                </div>
+                <div class="chat-msg">Tap to continue chatting</div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+
+    <div class="fab">
+        <i class="fas fa-comment-dots"></i>
+    </div>
+
+    <div class="bottom-nav">
+        <div class="nav-item active"><i class="fas fa-comment"></i>Chats</div>
+        <div class="nav-item"><i class="fas fa-circle-notch"></i>Updates</div>
+        <div class="nav-item"><i class="fas fa-phone"></i>Calls</div>
+    </div>
+
+</body>
+</html>

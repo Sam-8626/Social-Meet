@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background: #0b141a; color: white; font-family: sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; }
+        .chat-header { background: #202c33; padding: 10px; display: flex; align-items: center; position: sticky; top: 0; z-index: 1000; }
+        .chat-area { flex: 1; overflow-y: auto; padding: 20px; background: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); display: flex; flex-direction: column; }
+        .msg { max-width: 70%; padding: 8px 12px; border-radius: 8px; margin-bottom: 10px; font-size: 15px; }
+        .sent { background: #005c4b; align-self: flex-end; }
+        .received { background: #202c33; align-self: flex-start; }
+        .input-area { background: #202c33; padding: 10px; display: flex; align-items: center; }
+        .input-area input { flex: 1; background: #2a3942; border: none; padding: 12px; border-radius: 25px; color: white; outline: none; }
+        .send-btn { background: #00a884; border: none; color: white; width: 45px; height: 45px; border-radius: 50%; margin-left: 10px; cursor: pointer; }
+        .social-icons a { transition: 0.3s; }
+        .social-icons a:hover { opacity: 0.7; transform: scale(1.1); }
+    </style>
+</head>
+<body>
+
+    <div class="chat-header">
+        <a href="/dashboard" style="color: white; margin-right: 15px; text-decoration: none;"><i class="fas fa-arrow-left"></i></a>
+        
+        <img src="{{ url_for('static', filename='uploads/' + receiver.profile_pic) if receiver.profile_pic else 'https://ui-avatars.com/api/?name=' + receiver.username }}" 
+             style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px; object-fit: cover;">
+        
+        <div style="flex: 1;">
+            <strong style="display: block; font-size: 16px;">{{ receiver.username }}</strong>
+            <span style="font-size: 11px; color: #00a884;">online</span>
+        </div>
+
+        <div class="social-icons" style="display: flex; gap: 15px; margin-right: 10px;">
+            {% if receiver.instagram %}
+                <a href="https://instagram.com/{{ receiver.instagram }}" target="_blank" title="Check Instagram" style="color: #E1306C; font-size: 18px;"><i class="fab fa-instagram"></i></a>
+            {% endif %}
+            
+            {% if receiver.linkedin %}
+                <a href="https://linkedin.com/in/{{ receiver.linkedin }}" target="_blank" title="Check LinkedIn" style="color: #0077b5; font-size: 18px;"><i class="fab fa-linkedin"></i></a>
+            {% endif %}
+            
+            {% if receiver.twitter %}
+                <a href="https://twitter.com/{{ receiver.twitter }}" target="_blank" title="Check Twitter" style="color: #1DA1F2; font-size: 18px;"><i class="fab fa-twitter"></i></a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="chat-area">
+        {% for msg in chats %}
+            <div class="msg {{ 'sent' if msg.sender_id == session['user_id'] else 'received' }}">
+                {{ msg.message }}
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="input-area">
+        <input type="text" id="message_input" placeholder="Type a message" autocomplete="off" 
+               onkeypress="if(event.key === 'Enter') sendMessage()">
+        
+        <button onclick="sendMessage()" class="send-btn">
+            <i class="fas fa-paper-plane"></i>
+        </button>
+    </div>
+    
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+<script>
+    var socket = io();
+    var sender_id = {{ session['user_id'] }};
+    var receiver_id = {{ receiver.id }};
+    // Unique room for these two users
+    var room = sender_id < receiver_id ? sender_id + '_' + receiver_id : receiver_id + '_' + sender_id;
+
+    socket.emit('join', {'room': room});
+
+    function sendMessage() {
+        var msgInput = document.getElementById('message_input');
+        var msg = msgInput.value;
+        if(msg.trim() != "") {
+            socket.emit('send_message', {
+                'message': msg,
+                'sender_id': sender_id,
+                'receiver_id': receiver_id,
+                'room': room
+            });
+            msgInput.value = "";
+        }
+    }
+
+    socket.on('receive_message', function(data) {
+        var chatArea = document.querySelector('.chat-area');
+        var msgDiv = document.createElement('div');
+        msgDiv.classList.add('msg');
+        msgDiv.classList.add(data.sender_id == sender_id ? 'sent' : 'received');
+        msgDiv.innerText = data.message;
+        chatArea.appendChild(msgDiv);
+        chatArea.scrollTop = chatArea.scrollHeight; // Auto scroll to bottom
+    });
+</script>
+</html>
