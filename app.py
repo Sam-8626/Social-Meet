@@ -1,11 +1,15 @@
 import os
 import random
+import warnings # Add this
+from sqlalchemy.exc import LegacyAPIWarning # Add this
+warnings.filterwarnings("ignore", category=LegacyAPIWarning) # Add this
+
 from flask import Flask, render_template, request, session, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail, Message
 from werkzeug.utils import secure_filename
 from sqlalchemy import or_
-from flask_socketio import SocketIO, emit, join_room  # Pudhu imports
+from flask_socketio import SocketIO, emit, join_room
 
 app = Flask(__name__)
 app.secret_key = "obi_secret_key"
@@ -192,6 +196,4 @@ def logout():
     return redirect(url_for('home'))
 
 if __name__ == '__main__':
-    import os
-    port = int(os.environ.get("PORT", 5000))
-    socketio.run(app, host='0.0.0.0', port=port)
+    socketio.run(app, debug=True)
