@@ -1,4 +1,5 @@
 import os
+import sys
 import random
 import json
 from flask import Flask, render_template, request, session, redirect, url_for
@@ -38,20 +39,16 @@ if not firebase_admin._apps:
         
     firebase_admin.initialize_app(cred)
 
-# Connection Check Diagnostics
+# Firebase Firestore Initialization
 db = firestore.client()
+
+# Diagnostic Connection Check
 try:
-    # Small test query to verify Firestore connectivity
     test_docs = list(db.collection('users').limit(1).stream())
-    print("✅ Firebase Firestore Connected Successfully!")
+    print("✅ Firebase Firestore Connected Successfully!", flush=True)
 except Exception as e:
-    print(f"❌ Firebase Connection Failed: {str(e)}")
+    print(f"❌ Firebase Connection Failed: {str(e)}", file=sys.stderr, flush=True)
 
-mail = Mail(app)
-socketio = SocketIO(app, cors_allowed_origins="*")
-
-# Indha 3 variables missing-a irundhadhu, ippo add panniyeachu:
-db = firestore.client()
 mail = Mail(app)
 socketio = SocketIO(app, cors_allowed_origins="*")
 
