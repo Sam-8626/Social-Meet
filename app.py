@@ -40,10 +40,10 @@ if not firebase_admin._apps:
         cred = credentials.Certificate("firebase-key.json")
         
     firebase_admin.initialize_app(cred)
-if not firebase_admin._apps:
-    cred_path = os.environ.get("FIREBASE_KEY_PATH", "firebase-key.json")
-    cred = credentials.Certificate(cred_path)
-    firebase_admin.initialize_app(cred)
+
+db = firestore.client()
+mail = Mail(app)
+socketio = SocketIO(app, cors_allowed_origins="*")
 
 db = firestore.client()
 mail = Mail(app)
