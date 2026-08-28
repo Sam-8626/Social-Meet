@@ -1,8 +1,4 @@
-from gevent import monkey
-monkey.patch_all()
-
 import os
-import sys
 import random
 import json
 from flask import Flask, render_template, request, session, redirect, url_for
@@ -42,16 +38,8 @@ if not firebase_admin._apps:
         
     firebase_admin.initialize_app(cred)
 
-# Firebase Firestore Initialization
+# Direct Initialization without blocking startup loops
 db = firestore.client()
-
-# Diagnostic Connection Check
-try:
-    test_docs = list(db.collection('users').limit(1).stream())
-    print("✅ Firebase Firestore Connected Successfully!", flush=True)
-except Exception as e:
-    print(f"❌ Firebase Connection Failed: {str(e)}", file=sys.stderr, flush=True)
-
 mail = Mail(app)
 socketio = SocketIO(app, cors_allowed_origins="*")
 
