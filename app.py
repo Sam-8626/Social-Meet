@@ -27,6 +27,19 @@ app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
 app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
 
 # --- 2. FIREBASE & SOCKETIO INITIALIZATION ---
+import json
+
+if not firebase_admin._apps:
+    firebase_json_env = os.environ.get("FIREBASE_CREDENTIALS")
+    if firebase_json_env:
+        # Render Environment Variable (JSON String) moolama load aagum
+        cred_dict = json.loads(firebase_json_env)
+        cred = credentials.Certificate(cred_dict)
+    else:
+        # Local-la file irundha load aagum
+        cred = credentials.Certificate("firebase-key.json")
+        
+    firebase_admin.initialize_app(cred)
 if not firebase_admin._apps:
     cred_path = os.environ.get("FIREBASE_KEY_PATH", "firebase-key.json")
     cred = credentials.Certificate(cred_path)
