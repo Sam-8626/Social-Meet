@@ -2,7 +2,6 @@ import os
 import sqlite3
 import random
 import warnings # Add this
-from sqlalchemy.exc import LegacyAPIWarning # Add this
 warnings.filterwarnings("ignore", category=LegacyAPIWarning) # Add this
 
 from flask import Flask, render_template, request, session, redirect, url_for
