@@ -1,4 +1,5 @@
 import os
+import sqlite3
 import random
 import warnings # Add this
 from sqlalchemy.exc import LegacyAPIWarning # Add this
@@ -194,6 +195,27 @@ def search_contact():
 def logout():
     session.pop('user_id', None)
     return redirect(url_for('home'))
+
+@app.route('/admin-secret-dashboard')
+def admin_dashboard():
+    # Database la irundhu ellaroda data-vaiyum edukrom
+    conn = sqlite3.connect('instance/users.db')
+    cursor = conn.cursor()
+    
+    # Unga users table name munaadi enna kuduthreengalo adha use pannunga (e.g., users)
+    cursor.execute("SELECT id, username, email FROM users") 
+    all_users = cursor.fetchall()
+    conn.close()
+    
+    # Visual-aa paaka oru simple HTML list ah return panrom
+    html_output = "<h2>🛡️ Admin Live Database Log</h2><table border='1' cellpadding='10'>"
+    html_output += "<tr><th>ID</th><th>Username</th><th>Email</th></tr>"
+    
+    for user in all_users:
+        html_output += f"<tr><td>{user[0]}</td><td>{user[1]}</td><td>{user[2]}</td></tr>"
+        
+    html_output += "</table>"
+    return html_output
 
 if __name__ == '__main__':
     socketio.run(app, debug=True)
