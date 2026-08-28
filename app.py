@@ -1,5 +1,6 @@
 import os
 import random
+import json
 from flask import Flask, render_template, request, session, redirect, url_for
 from flask_mail import Mail, Message
 from flask_socketio import SocketIO, emit, join_room
@@ -27,8 +28,6 @@ app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
 app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
 
 # --- 2. FIREBASE & SOCKETIO INITIALIZATION ---
-import json
-
 if not firebase_admin._apps:
     firebase_json_env = os.environ.get("FIREBASE_CREDENTIALS")
     if firebase_json_env:
@@ -41,10 +40,7 @@ if not firebase_admin._apps:
         
     firebase_admin.initialize_app(cred)
 
-db = firestore.client()
-mail = Mail(app)
-socketio = SocketIO(app, cors_allowed_origins="*")
-
+# Indha 3 variables missing-a irundhadhu, ippo add panniyeachu:
 db = firestore.client()
 mail = Mail(app)
 socketio = SocketIO(app, cors_allowed_origins="*")
