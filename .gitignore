@@ -2,3 +2,8 @@
 instance/
 __pycache__/
 *.pyc
+.env
+firebase-key.json
+finalzip/
+finalzip.zip
+*.zip
