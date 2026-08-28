@@ -31,14 +31,24 @@ app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
 if not firebase_admin._apps:
     firebase_json_env = os.environ.get("FIREBASE_CREDENTIALS")
     if firebase_json_env:
-        # Render Environment Variable (JSON String) moolama load aagum
         cred_dict = json.loads(firebase_json_env)
         cred = credentials.Certificate(cred_dict)
     else:
-        # Local-la file irundha load aagum
         cred = credentials.Certificate("firebase-key.json")
         
     firebase_admin.initialize_app(cred)
+
+# Connection Check Diagnostics
+db = firestore.client()
+try:
+    # Small test query to verify Firestore connectivity
+    test_docs = list(db.collection('users').limit(1).stream())
+    print("✅ Firebase Firestore Connected Successfully!")
+except Exception as e:
+    print(f"❌ Firebase Connection Failed: {str(e)}")
+
+mail = Mail(app)
+socketio = SocketIO(app, cors_allowed_origins="*")
 
 # Indha 3 variables missing-a irundhadhu, ippo add panniyeachu:
 db = firestore.client()
